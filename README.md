@@ -1,4 +1,4 @@
-# UAV Development Learning Journey
+# UAV Development
 
 A comprehensive learning project focused on UAV (Unmanned Aerial Vehicle) development, starting from simulation and progressing toward real hardware implementation.
 
@@ -22,6 +22,50 @@ A comprehensive learning project focused on UAV (Unmanned Aerial Vehicle) develo
 - Holybro X500 V2 Kit with Pixhawk 6C (~£600)
 - *To be purchased after mastering simulation environment*
 
+## 🧪 Current Lab Setup
+
+Our simulation environment consists of three main components running locally:
+
+```
+┌─────────────────────────┐
+│   MacBook Pro M3 Pro    │
+│                         │
+│  ┌──────────────────┐  │     MAVLink Protocol
+│  │  PX4 Autopilot   │◄─┼────► (UDP Port 14550)
+│  │  (Flight Control)│  │
+│  │                  │  │     • Telemetry data
+│  │  • 250 Hz loop   │  │     • Commands
+│  │  • Sensor fusion │  │     • Parameters
+│  │  • Motor control │  │
+│  └────────┬─────────┘  │
+│           │             │
+│           ▼             │
+│  ┌──────────────────┐  │
+│  │  SIH Simulator   │  │
+│  │  (Physics Engine)│  │
+│  │                  │  │
+│  │  • Virtual IMU   │  │
+│  │  • Virtual GPS   │  │
+│  │  • Virtual motors│  │
+│  └──────────────────┘  │
+│                         │
+│  ┌──────────────────┐  │
+│  │ QGroundControl   │  │
+│  │ (Ground Station) │  │
+│  │                  │  │
+│  │  • Mission plan  │  │
+│  │  • Telemetry view│  │
+│  │  • Calibration   │  │
+│  └──────────────────┘  │
+└─────────────────────────┘
+```
+
+**What's Running:**
+- **PX4 SITL** - Complete autopilot software in simulation mode
+- **SIH (Simulation-In-Hardware)** - Lightweight built-in physics simulator
+- **QGroundControl** - Mission planning and monitoring interface
+- **Communication** - MAVLink protocol over UDP localhost
+
 ## 📚 Technology Stack
 
 ### Current Focus (Simulation Phase)
@@ -43,9 +87,14 @@ A comprehensive learning project focused on UAV (Unmanned Aerial Vehicle) develo
 ### Phase 1: Simulation Setup ✅ (In Progress)
 - [x] Choose development platform (macOS native)
 - [x] Create GitHub repository
-- [ ] Install PX4 toolchain
-- [ ] Install QGroundControl
-- [ ] Run first simulated flight
+- [x] Install Homebrew and dependencies
+- [x] Install PX4 toolchain and build system
+- [x] Install QGroundControl
+- [x] Configure Python virtual environment
+- [x] Successfully build and run PX4 SITL
+- [x] Connect QGroundControl to simulated drone
+- [ ] Calibrate simulated sensors
+- [ ] Execute first test flight
 - [ ] Understand PX4 architecture
 
 ### Phase 2: Basic Flight Operations
@@ -76,30 +125,6 @@ A comprehensive learning project focused on UAV (Unmanned Aerial Vehicle) develo
 - [ ] Safety procedures and checklists
 - [ ] Real-world flight testing
 
-## 📁 Repository Structure
-
-```
-uav-development-learning/
-├── README.md                    # This file
-├── docs/
-│   ├── setup-guide.md          # Detailed installation instructions
-│   ├── learning-log.md         # Daily/weekly progress notes
-│   ├── resources.md            # Useful links and references
-│   └── troubleshooting.md      # Common issues and solutions
-├── simulation/
-│   ├── px4-configs/           # PX4 parameter files
-│   ├── mission-plans/         # QGroundControl mission files
-│   └── worlds/                # Custom Gazebo world files
-├── scripts/
-│   ├── python/                # Python drone control scripts
-│   │   ├── basic/            # Simple examples
-│   │   └── advanced/         # Complex algorithms
-│   └── bash/                  # Setup and utility scripts
-├── notes/
-│   └── lessons-learned.md     # Key takeaways and insights
-└── .gitignore
-```
-
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -108,17 +133,35 @@ uav-development-learning/
 - 20+ GB free disk space
 - Basic terminal/command line knowledge
 
-### Installation
-```bash
-# Clone this repository
-git clone https://github.com/YOUR_USERNAME/uav-development-learning.git
-cd uav-development-learning
+### Running the Simulation
 
-# Follow the detailed setup guide
-open docs/setup-guide.md
+```bash
+# Navigate to PX4 directory
+cd /Users/alex/dev/uav_dev/PX4-Autopilot
+
+# Activate Python virtual environment
+source px4_venv/bin/activate
+
+# Start PX4 simulation with SIH (headless mode)
+HEADLESS=1 make px4_sitl_default none
+
+# In another terminal, launch QGroundControl
+open /Applications/QGroundControl.app
 ```
 
-*Detailed installation instructions coming soon in `docs/setup-guide.md`*
+### Automated Setup (Optional)
+
+Add this to your `~/.zshrc` to automatically activate the virtual environment:
+
+```bash
+# PX4 Development aliases
+alias px4_sim='cd /Users/alex/dev/uav_dev/PX4-Autopilot && source px4_venv/bin/activate && HEADLESS=1 make px4_sitl_default none'
+alias px4_env='cd /Users/alex/dev/uav_dev/PX4-Autopilot && source px4_venv/bin/activate'
+```
+
+Then you can simply type `px4_sim` to start the simulation!
+
+*Detailed installation instructions in `docs/setup-guide-macos.md`*
 
 ## 📖 Learning Resources
 
@@ -156,6 +199,13 @@ open docs/setup-guide.md
 - **Oct 23**: Decided on Holybro X500 V2 with Pixhawk 6C as target hardware
 - **Oct 23**: Chose simulation-first approach for cost-effective learning
 - **Oct 23**: Configured development environment (MacBook Pro M3 Pro)
+- **Oct 24**: Successfully installed PX4 toolchain and dependencies
+- **Oct 24**: Resolved Java compatibility issues for jMAVSim (upgraded to OpenJDK 25)
+- **Oct 24**: Configured Python virtual environment for PX4
+- **Oct 24**: First successful PX4 SITL build and execution with SIH simulator
+- **Oct 24**: Installed and connected QGroundControl to simulated drone
+- **Oct 24**: Understanding PX4 control loop (250 Hz) and MAVLink communication
+- **Oct 24**: Ready for sensor calibration and first flight test
 
 *Regular updates to be added as project progresses*
 
