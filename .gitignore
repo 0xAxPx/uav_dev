@@ -1,1 +1,40 @@
-PX4-Autopilot/
+# Build directories
+build/
+.build/
+
+# Python
+px4_venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# PX4 specific
+dataman
+*.ulg
+*.bin
+parameters.bson
+parameters_backup.bson
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+log/
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
