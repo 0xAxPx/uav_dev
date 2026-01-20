@@ -9,6 +9,8 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
+venv/
+env/
 
 # PX4 specific
 dataman
@@ -38,3 +40,21 @@ logs/
 tmp/
 temp/
 *.tmp
+
+# NEW: Add these
+# Datasets (images can be large)
+datasets/*
+!datasets/.gitkeep
+!datasets/README.md
+
+# Generated reports
+reports/*.pdf
+reports/*.png
+
+# Virtual environments
+.venv/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+# IDE settings (personal)
+.vscode/
