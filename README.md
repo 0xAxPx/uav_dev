@@ -173,6 +173,21 @@ Hands-on UAV development using open-source tools (PX4/ArduPilot). Goal: Master f
 
 ---
 
+### Week 2 (Nov 23, 2025) - IN PROGRESS
+**Completed:**
+- [x] Install DroneKit/pymavlink
+- [x] Write first connection script
+- [x] Read and parse telemetry (GPS, battery, altitude)
+
+**Learned:**
+- pymavlink connection and message handling
+- MAVLink message types (GPS_RAW_INT, SYS_STATUS, VFR_HUD)
+- Unit conversions (lat/lon 1e7, altitude mm→m, voltage mV→V)
+
+**Time invested:** ~2 hours
+
+---
+
 ## 🎓 Essential Resources
 
 ### Technical Foundation
