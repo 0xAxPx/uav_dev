@@ -1,10 +1,9 @@
 from pymavlink import mavutil
 from datetime import datetime
-from time import sleep
-from time import time
 import threading
 import math
 from time import time, sleep
+import constants as c
 
 
 # Shared state
@@ -16,16 +15,6 @@ target_position = {
 
 setpoint_thread_running = False
 setpoint_thread = None
-
-# Constants
-CONNECTION_STRING = "udp:127.0.0.1:14540"
-MSG_HEARTBEAT = "HEARTBEAT"
-MSG_ACK = "COMMAND_ACK"
-MSG_GPS = "GPS_RAW_INT"
-MSG_SYS = "SYS_STATUS"
-MSG_HUD = "VFR_HUD"
-MSG_LOC_POSIT_NED = "LOCAL_POSITION_NED"
-
 
 def print_timestamped(message):
     """Print message with timestamp."""
@@ -94,7 +83,7 @@ def get_current_position(connection, timeout=2):
         None: If timeout or no message received
     """
     
-    msg = connection.recv_match(type=MSG_LOC_POSIT_NED, blocking=True, timeout=timeout)
+    msg = connection.recv_match(type=c.MSG_LOC_POSIT_NED, blocking=True, timeout=timeout)
     if msg:
         position = {
             'x': msg.x,
@@ -380,7 +369,7 @@ def arm(connection, system_id, component_id):
     )
     
     # get acknowledgment
-    ack_msg = connection.recv_match(type=MSG_ACK, blocking=True, timeout = 5)
+    ack_msg = connection.recv_match(type=c.MSG_ACK, blocking=True, timeout = 5)
     if not ack_msg:
         return None
     if ack_msg and ack_msg.command == 400:
@@ -390,7 +379,7 @@ def arm(connection, system_id, component_id):
             print_timestamped("Armed!")
             return True
         else:
-            print_timestamped(f'There is a problem with getting {MSG_ACK} for arming drone, result returned = {ack_msg.result}')
+            print_timestamped(f'There is a problem with getting {c.MSG_ACK} for arming drone, result returned = {ack_msg.result}')
     else:
         print_timestamped('Arm failed!')
         return False
@@ -409,7 +398,7 @@ def set_mode(connection, system_id, component_id, mode_name):
             0,0,0,0
         )
     
-    ack_msg = connection.recv_match(type=MSG_ACK, blocking=True, timeout=5)
+    ack_msg = connection.recv_match(type=c.MSG_ACK, blocking=True, timeout=5)
     
     if not ack_msg:
         print_timestamped("No ACK received for mode change")
@@ -425,7 +414,7 @@ def set_mode(connection, system_id, component_id, mode_name):
             
             # Check heartbeat multiple times (sometimes takes a moment)
             for attempt in range(3):
-                heartbeat = connection.recv_match(type=MSG_HEARTBEAT, blocking=True, timeout=2)
+                heartbeat = connection.recv_match(type=c.MSG_HEARTBEAT, blocking=True, timeout=2)
                 if heartbeat:
                     main_mode = (heartbeat.custom_mode >> 16) & 0xFF
                     print_timestamped(f"Attempt {attempt+1}: Mode = {main_mode}")
@@ -445,7 +434,7 @@ def set_mode(connection, system_id, component_id, mode_name):
     
     return False
 
-def wait_for_setpoints_active(connection, timeout=10):
+def wait_for_setpoints_active(connection, timeout=30):
     """
     Wait until PX4 acknowledges receiving setpoints.
     This ensures OFFBOARD mode will work.
@@ -482,7 +471,7 @@ def takeoff(connection, system_id, component_id, height):
         height
     )
     
-    ack_msg = connection.recv_match(type=MSG_ACK, blocking=True, timeout = 5)
+    ack_msg = connection.recv_match(type=c.MSG_ACK, blocking=True, timeout = 5)
     if not ack_msg:
         return None
     if ack_msg and ack_msg.command == 22:
@@ -491,7 +480,7 @@ def takeoff(connection, system_id, component_id, height):
             print_timestamped(f'Drone is hovering at {height} meters!')
             return True
         else:
-            print_timestamped(f'There is a problem with getting {MSG_ACK} for taking off, result returned = {ack_msg.result}')
+            print_timestamped(f'There is a problem with getting {c.MSG_ACK} for taking off, result returned = {ack_msg.result}')
     else:
         print_timestamped('Drone takeoff failed!')
         return False
@@ -507,7 +496,7 @@ def land(connection, system_id, component_id):
         0,0,
         0
     )
-    ack_msg = connection.recv_match(type=MSG_ACK, blocking=True, timeout = 5)
+    ack_msg = connection.recv_match(type=c.MSG_ACK, blocking=True, timeout = 5)
     if not ack_msg:
         return None
     if ack_msg and ack_msg.command == 21:
@@ -516,7 +505,7 @@ def land(connection, system_id, component_id):
             print_timestamped('Drone landed successfully!')
             return True
         else:
-            print_timestamped(f'There is a problem with getting {MSG_ACK} for drone landing, result returned = {ack_msg.result}')
+            print_timestamped(f'There is a problem with getting {c.MSG_ACK} for drone landing, result returned = {ack_msg.result}')
 
     else:
         print_timestamped('Drone landing failed!')
@@ -527,7 +516,7 @@ def wait_for_altitude(connection, target_alt, tolerance = 0.5):
     start_time = time()
     timeout = 30
     while (time() - start_time) < timeout:
-        msg = connection.recv_match(type=MSG_HUD, blocking = True, timeout = 2)
+        msg = connection.recv_match(type=c.MSG_HUD, blocking = True, timeout = 2)
         if msg:
             current_alt = msg.alt
             
@@ -537,20 +526,15 @@ def wait_for_altitude(connection, target_alt, tolerance = 0.5):
         sleep(0.1)
     print_timestamped("Timeout waiting for altitude")
     return False
-            
-    
-def main():
-    connection = connect_to_vehicle(CONNECTION_STRING)
-    system_id = connection.target_system
-    component_id = connection.target_component
-    
-    # pre-flight checks
-    gps_msg = connection.recv_match(type=MSG_GPS, blocking=True, timeout=2)
+
+def preflight_checks(connection):
+    # Pre-flight checks
+    gps_msg = connection.recv_match(type=c.MSG_GPS, blocking=True, timeout=2)
     if not gps_msg:
         return None
     gps_fix_type = gps_msg.fix_type
     
-    sys_status_msg = connection.recv_match(type=MSG_SYS, blocking=True, timeout=3)
+    sys_status_msg = connection.recv_match(type=c.MSG_SYS, blocking=True, timeout=3)
     if not sys_status_msg:
         return None
     battery_remaining = sys_status_msg.battery_remaining
@@ -561,6 +545,16 @@ def main():
     else:
         print_timestamped(f'Pre-flight checks passed. Battery remain = {battery_remaining}, GPS fix type = {gps_fix_type}')
     
+    return True
+                
+    
+def main():
+    connection = connect_to_vehicle(c.CONNECTION_STRING)
+    system_id = connection.target_system
+    component_id = connection.target_component
+    
+    # preflight check
+    preflight_checks(connection=connection)
     try:
         # Start setpoint thread at ground level
         set_target_position(0, 0, 0)
