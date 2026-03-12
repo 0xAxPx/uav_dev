@@ -11,6 +11,7 @@ __pycache__/
 .Python
 venv/
 env/
+.venv/
 
 # PX4 specific
 dataman
@@ -31,30 +32,28 @@ parameters_backup.bson
 .AppleDouble
 .LSOverride
 
-# Logs
+# Logs and telemetry
 log/
 logs/
 *.log
+scripts/missions/logs/*.csv
+
+# Analysis outputs (keep examples)
+scripts/analysis/plots/*.png
+!scripts/analysis/plots/*example*.png
 
 # Temporary files
 tmp/
 temp/
 *.tmp
 
-# NEW: Add these
-# Datasets (images can be large)
+# Datasets
 datasets/*
 !datasets/.gitkeep
 !datasets/README.md
 
-# Generated reports
+# Reports
 reports/*.pdf
-reports/*.png
 
-# Virtual environments
-.venv/
-
-# Jupyter notebooks checkpoints
+# Jupyter
 .ipynb_checkpoints/
-# IDE settings (personal)
-.vscode/
