@@ -163,17 +163,60 @@ def main():
     finally:
         logger.stop_logging()
         csv_path = logger.save_to_csv()
-        
-        # Generate visualizations
+    
         if csv_path:
-            print_timestamped("\nGenerating flight visualizations...")
-            sys.path.append('../analysis')
-            from visualize_flight import visualize_flight
-            visualize_flight(csv_path, output_dir='../analysis/plots')
+            print_timestamped("\n" + "="*60)
+            print_timestamped("POST-FLIGHT PROCESSING")
+            print_timestamped("="*60)
         
-        stop_setpoint_thread()
-        connection.close()
-        print_timestamped('Connection closed!')
+            # Add analysis directory to path
+            import os
+            parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            analysis_dir = os.path.join(parent_dir, 'analysis')
+            if analysis_dir not in sys.path:
+                sys.path.insert(0, analysis_dir)
+    
+            # 1. Generate visualizations
+            print_timestamped("\n[1/2] Generating flight visualizations...")
+            plot_dir = None
+            try:
+                from visualize_flight import visualize_flight
+                plot_dir = visualize_flight(csv_path, output_dir='../analysis/plots')
+                if plot_dir:
+                    print_timestamped(f"✓ Plots saved to: {plot_dir}")
+            except Exception as e:
+                print_timestamped(f"✗ Visualization failed: {e}")
+                import traceback
+                traceback.print_exc()
+    
+            # 2. Generate PDF report
+            print_timestamped("\n[2/2] Generating PDF report...")
+            report_path = None
+            try:
+                from generate_report import FlightReportGenerator
+                generator = FlightReportGenerator(csv_path, output_dir='../analysis/reports')
+                report_path = generator.generate_technical_report()
+                if report_path:
+                    print_timestamped(f"✓ Report saved to: {report_path}")
+            except Exception as e:
+                print_timestamped(f"✗ Report generation failed: {e}")
+                import traceback
+                traceback.print_exc()
+    
+            # Summary
+            print_timestamped("\n" + "="*60)
+            print_timestamped("✓ POST-FLIGHT PROCESSING COMPLETE")
+            print_timestamped("="*60)
+            print_timestamped(f"\nFlight Data:    {csv_path}")
+            if plot_dir:
+                print_timestamped(f"Visualizations: {plot_dir}")
+            if report_path:
+                print_timestamped(f"PDF Report:     {report_path}")
+            print_timestamped("="*60 + "\n")
+    
+    stop_setpoint_thread()
+    connection.close()
+    print_timestamped('Connection closed!')
 
         
 if __name__ == "__main__":
