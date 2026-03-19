@@ -9,11 +9,12 @@ import constants as c
 
 class TelemetryLogger:
     
-    def __init__(self):
+    def __init__(self, flight_profile="unknown"):  # ← CHANGED: Added parameter
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         os.makedirs("logs", exist_ok=True)
         
-        self.file_path = os.path.join('logs', f'flight_{timestamp}.csv')
+        # Full file path WITH PROFILE NAME
+        self.file_path = os.path.join('logs', f'flight_{flight_profile}_{timestamp}.csv')
         self.fieldnames = [
             'timestamp', 'x', 'y', 'z', 'altitude',
             'vx', 'vy', 'vz', 'ground_speed', 'vertical_speed',
@@ -105,7 +106,7 @@ class TelemetryLogger:
         """Write telemetry log to CSV file."""
         if not self.telemetry_log:
             print_timestamped("[TelemetryLogger] No data to save")
-            return
+            return None
         
         with open(self.file_path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=self.fieldnames)
@@ -113,3 +114,4 @@ class TelemetryLogger:
             writer.writerows(self.telemetry_log)
         
         print_timestamped(f"[TelemetryLogger] Saved {len(self.telemetry_log)} readings to {self.file_path}")
+        return self.file_path
