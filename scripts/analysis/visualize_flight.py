@@ -228,6 +228,7 @@ def visualize_flight(csv_path, output_dir='plots'):
     
     print(f"\n✓ All visualizations saved to: {output_dir}/")
     print(f"✓ Analysis complete!\n")
+    return output_dir
 
 
 if __name__ == "__main__":
@@ -238,7 +239,7 @@ if __name__ == "__main__":
         # Use most recent log file
         log_dir = '../missions/logs'
         if os.path.exists(log_dir):
-            log_files = [f for f in os.listdir(log_dir) if f.endswith('.csv')]
+            log_files = [f for f in os.listdir(log_dir) if f.endswith('.csv') and f.startswith('flight_')]
             if log_files:
                 log_files.sort(reverse=True)  # Most recent first
                 csv_path = os.path.join(log_dir, log_files[0])
