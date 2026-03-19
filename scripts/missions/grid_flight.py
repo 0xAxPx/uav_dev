@@ -11,6 +11,7 @@ from time import time, sleep
 from telemetry_logging import TelemetryLogger
 import sys
 
+GENERATE_ENHANCED_REPORT = True
 
 def apply_flight_profile(connection, system_id, component_id, profile):
     """Apply flight profile parameters to PX4."""
@@ -193,11 +194,16 @@ def main():
             print_timestamped("\n[2/2] Generating PDF report...")
             report_path = None
             try:
-                from generate_report import FlightReportGenerator
-                generator = FlightReportGenerator(csv_path, output_dir='../analysis/reports')
-                report_path = generator.generate_technical_report()
-                if report_path:
-                    print_timestamped(f"✓ Report saved to: {report_path}")
+                if GENERATE_ENHANCED_REPORT:
+                    from generate_report_enhanced import EnhancedFlightReportGenerator
+                    generator = EnhancedFlightReportGenerator(csv_path, output_dir='../analysis/reports')
+                    report_path = generator.generate_enhanced_report()
+                else:
+                    from generate_report import FlightReportGenerator
+                    generator = FlightReportGenerator(csv_path, output_dir='../analysis/reports')
+                    report_path = generator.generate_technical_report()
+                    if report_path:
+                        print_timestamped(f"✓ Report saved to: {report_path}")
             except Exception as e:
                 print_timestamped(f"✗ Report generation failed: {e}")
                 import traceback
