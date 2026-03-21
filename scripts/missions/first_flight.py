@@ -4,6 +4,9 @@ import threading
 import math
 from time import time, sleep
 import constants as c
+import os
+import shutil
+from glob import glob
 
 
 # Shared state
@@ -353,36 +356,115 @@ def connect_to_vehicle(connection_string):
     )
     return connection
 
-def arm(connection, system_id, component_id):
+
+def arm(connection, system_id, component_id, max_retries=5):
+    """Arm the vehicle with retries."""
+    for attempt in range(max_retries):
+        print_timestamped(f"Arming attempt {attempt + 1}/{max_retries}...")
+        
+        connection.mav.command_long_send(
+            system_id,
+            component_id,
+            400,
+            0,
+            1,
+            21196,  # force arm
+            0, 0, 0, 0, 0
+        )
+        
+        ack_msg = connection.recv_match(type='COMMAND_ACK', blocking=True, timeout=5)
+        if not ack_msg:
+            print_timestamped("✗ No ACK received")
+            sleep(2)
+            continue
+        
+        print_timestamped(f"  Result: {ack_msg.result}")
+        
+        if ack_msg.result == 0:
+            print_timestamped("✓ Armed!")
+            return True
+        elif ack_msg.result == 1:  # TEMPORARILY_REJECTED
+            print_timestamped("  ⚠ Temporarily rejected, retrying...")
+            sleep(3)  # Wait before retry
+            continue
+        else:
+            errors = {2: "DENIED", 3: "UNSUPPORTED", 4: "FAILED"}
+            error_name = errors.get(ack_msg.result, f"UNKNOWN({ack_msg.result})")
+            print_timestamped(f"✗ Arm FAILED: {error_name}")
+            return False
+    
+    print_timestamped(f"✗ Failed to arm after {max_retries} attempts")
+    return False
+   
+    
+def trigger_camera(connection, system_id, component_id, waypoint_num):
+    """
+    Trigger camera via MAVLink and copy image to project directory.
+    
+    Images are saved to: scripts/missions/images/
+    """
+    print_timestamped(f"  📸 Triggering camera at waypoint {waypoint_num}")
+    
+    # Send MAVLink camera trigger
     connection.mav.command_long_send(
         system_id,
         component_id,
-        400,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
+        mavutil.mavlink.MAV_CMD_DO_DIGICAM_CONTROL,
+        0,  # confirmation
+        0,  # session control
+        0,  # zoom position  
+        0,  # zoom step
+        0,  # focus lock
+        1,  # shooting command (1 = take photo)
+        0,  # command identity
+        0   # extra param
     )
     
-    # get acknowledgment
-    ack_msg = connection.recv_match(type=c.MSG_ACK, blocking=True, timeout = 5)
-    if not ack_msg:
-        return None
-    if ack_msg and ack_msg.command == 400:
-        # result == 0 (accepted)
-        if ack_msg.result == 0:
-            print_timestamped(f'ACK:{ack_msg}')
-            print_timestamped("Armed!")
-            return True
-        else:
-            print_timestamped(f'There is a problem with getting {c.MSG_ACK} for arming drone, result returned = {ack_msg.result}')
-    else:
-        print_timestamped('Arm failed!')
-        return False
+    # Wait for camera to capture
+    sleep(0.5)
+    
+    # Copy latest image from Gazebo to project
+    try:
+        # Gazebo saves to ~/.gz/gui/pictures
+        gz_dir = os.path.expanduser("~/.gz/gui/pictures")
+        
+        # Get most recent image
+        images = glob(f"{gz_dir}/*.png")
+        if images:
+            latest_image = max(images, key=os.path.getctime)
+            
+            # Create project images directory
+            project_img_dir = os.path.join(
+                os.path.dirname(__file__), 
+                'images'
+            )
+            os.makedirs(project_img_dir, exist_ok=True)
+            
+            # Copy with waypoint number in filename
+            timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            dest_filename = f"waypoint_{waypoint_num:03d}_{timestamp}.png"
+            dest_path = os.path.join(project_img_dir, dest_filename)
+            
+            shutil.copy2(latest_image, dest_path)
+            print_timestamped(f"     ✓ Image saved: {dest_filename}")
+            
+    except Exception as e:
+        print_timestamped(f"     ⚠ Image copy failed: {e}")
+ 
+ 
+def cleanup_camera_images():
+    """
+    Optional: Clean up Gazebo's temporary image directory.
+    """
+    try:
+        gz_dir = os.path.expanduser("~/.gz/gui/pictures")
+        if os.path.exists(gz_dir):
+            for file in glob(f"{gz_dir}/*.png"):
+                os.remove(file)
+            print_timestamped("✓ Cleaned up temporary camera images")
+    except Exception as e:
+        print_timestamped(f"⚠ Cleanup failed: {e}")
+    
 
 def set_mode(connection, system_id, component_id, mode_name):
     print_timestamped(f'Setting flight mode to {mode_name}')
