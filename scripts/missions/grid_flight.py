@@ -1,7 +1,7 @@
 from grid_mission import GridMission
 from first_flight import (connect_to_vehicle, print_timestamped, set_target_position,
                          wait_for_setpoints_active, arm, set_mode, start_setpoint_thread,
-                         stop_setpoint_thread, wait_for_position, preflight_checks)
+                         stop_setpoint_thread, wait_for_position, preflight_checks, trigger_camera, cleanup_camera_images)
 import constants 
 from pymavlink import mavutil
 from datetime import datetime
@@ -108,6 +108,8 @@ def main():
     
     # 3. Connect to vehicle
     connection = connect_to_vehicle(constants.CONNECTION_STRING)
+    print_timestamped("Waiting for GPS lock...")
+    sleep(10)
     system_id = connection.target_system
     component_id = connection.target_component
     
@@ -158,7 +160,10 @@ def main():
             logger.set_target(x, y, z)
             print_timestamped(f"\n=== Waypoint {i+1}/{len(mission)} ===")
             set_target_position(x, y, z)
-            wait_for_position(connection, x, y, z)
+            reached, _ = wait_for_position(connection, x, y, z)
+            if reached:
+                trigger_camera(connection, system_id, component_id, i+1)
+                sleep(1)
             sleep(3)
             
     finally:
@@ -208,6 +213,9 @@ def main():
                 print_timestamped(f"✗ Report generation failed: {e}")
                 import traceback
                 traceback.print_exc()
+            
+            # Clean camera
+            cleanup_camera_images()
     
             # Summary
             print_timestamped("\n" + "="*60)

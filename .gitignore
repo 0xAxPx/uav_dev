@@ -41,6 +41,7 @@ scripts/missions/logs/*.csv
 # Analysis outputs (keep examples)
 scripts/analysis/plots/*.png
 !scripts/analysis/plots/*example*.png
+scripts/missions/images/*.png
 
 # Temporary files
 tmp/
