@@ -9,7 +9,7 @@ import constants as c
 
 class TelemetryLogger:
     
-    def __init__(self, flight_profile="unknown"):  # ← CHANGED: Added parameter
+    def __init__(self, flight_profile="unknown"):
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         os.makedirs("logs", exist_ok=True)
         
@@ -18,6 +18,7 @@ class TelemetryLogger:
         self.fieldnames = [
             'timestamp', 'x', 'y', 'z', 'altitude',
             'vx', 'vy', 'vz', 'ground_speed', 'vertical_speed',
+            'lat', 'lon',  # GPS coordinates
             'waypoint', 'battery', 'distance_to_target'
         ]
         
@@ -61,6 +62,11 @@ class TelemetryLogger:
                 if not pos:
                     continue
                 
+                # Get GPS coordinates
+                gps_msg = connection.recv_match(type='GPS_RAW_INT', blocking=False)
+                lat = gps_msg.lat / 1e7 if gps_msg else 0.0  # Convert to decimal degrees
+                lon = gps_msg.lon / 1e7 if gps_msg else 0.0
+                
                 # Get battery
                 sys_msg = connection.recv_match(type=c.MSG_SYS, blocking=False)
                 battery = sys_msg.battery_remaining if sys_msg else -1
@@ -82,6 +88,8 @@ class TelemetryLogger:
                     'vz': pos['vz'],
                     'ground_speed': pos['ground_speed'],
                     'vertical_speed': pos['vertical_speed'],
+                    'lat': lat,
+                    'lon': lon,
                     'waypoint': self.current_waypoint,
                     'battery': battery,
                     'distance_to_target': distance
