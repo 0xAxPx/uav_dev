@@ -1,20 +1,33 @@
+"""
+Telemetry Logger
+
+Captures flight telemetry data in background thread and saves to CSV.
+"""
+
 from datetime import datetime
 from time import time, sleep
 import csv
 import os
 import threading
-from first_flight import get_current_position, horizontal_distance, print_timestamped
-import constants as c
+from src.core.navigation import get_current_position, horizontal_distance
+from src.core.connection import print_timestamped
+from src.core import constants as c
 
 
 class TelemetryLogger:
     
     def __init__(self, flight_profile="unknown"):
+        """
+        Initialize telemetry logger.
+        
+        Args:
+            flight_profile: Name of flight profile for filename
+        """
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        os.makedirs("logs", exist_ok=True)
+        os.makedirs("data/flights/logs", exist_ok=True)
         
         # Full file path WITH PROFILE NAME
-        self.file_path = os.path.join('logs', f'flight_{flight_profile}_{timestamp}.csv')
+        self.file_path = os.path.join('data/flights/logs', f'flight_{flight_profile}_{timestamp}.csv')
         self.fieldnames = [
             'timestamp', 'x', 'y', 'z', 'altitude',
             'vx', 'vy', 'vz', 'ground_speed', 'vertical_speed',

@@ -42,6 +42,8 @@ scripts/missions/logs/*.csv
 scripts/analysis/plots/*.png
 !scripts/analysis/plots/*example*.png
 scripts/missions/images/*.png
+scripts/missions/images/*.jpg
+data/flights/images/*.csv
 
 # Temporary files
 tmp/
@@ -58,3 +60,18 @@ reports/*.pdf
 
 # Jupyter
 .ipynb_checkpoints/
+# Data directories (keep structure, ignore contents)
+data/flights/logs/*.csv
+data/flights/images/*.png
+data/flights/images/*.jpg
+data/outputs/plots/*.png
+data/outputs/reports/*.pdf
+data/outputs/detections/*
+data/datasets/raw/*
+data/datasets/annotated/*
+data/datasets/splits/*
+
+# Vision models (except .gitkeep)
+src/vision/models/*.pt
+src/vision/models/*.pth
+!src/vision/models/.gitkeep
