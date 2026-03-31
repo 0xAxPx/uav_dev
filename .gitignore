@@ -75,3 +75,9 @@ data/datasets/splits/*
 src/vision/models/*.pt
 src/vision/models/*.pth
 !src/vision/models/.gitkeep
+
+# Model
+Roof-Damage-1/*
+!Roof-Damage-1/data.yaml
+runs/*
+*.pt

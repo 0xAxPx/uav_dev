@@ -1,0 +1,19 @@
+names:
+- Blister
+- Chipped Shingle
+- Cracked Shingle
+- Degranulation
+- Dragons Tooth
+- Hail Impact
+- Mechanical Damage
+- Puncture
+nc: 8
+roboflow:
+  license: CC BY 4.0
+  project: roof-damage-ukqfw
+  url: https://universe.roboflow.com/smartroof/roof-damage-ukqfw/dataset/1
+  version: 1
+  workspace: smartroof
+test: ../test/images
+train: ../train/images
+val: ../valid/images
