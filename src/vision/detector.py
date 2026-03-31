@@ -23,13 +23,8 @@ class RoofDamageDetector:
         3: debris - Leaves, branches, trash
     """
     
-    # Class definitions
-    CLASS_NAMES = {
-        0: 'crack',
-        1: 'missing_tile',
-        2: 'water_damage',
-        3: 'debris'
-    }
+    # Class definitions (auto-loaded from model)
+    CLASS_NAMES = None  # Will be set from model.names in __init__
     
     # Severity thresholds (based on area in pixels)
     SEVERITY_THRESHOLDS = {
@@ -59,9 +54,13 @@ class RoofDamageDetector:
         # Load YOLOv8 model
         print(f"Loading model from {model_path}...")
         self.model = YOLO(model_path)
+        
+        # Auto-load class names from model
+        self.CLASS_NAMES = self.model.names
+        
         print(f"✓ Model loaded successfully!")
         print(f"  Confidence threshold: {confidence_threshold}")
-        print(f"  Classes: {list(self.CLASS_NAMES.values())}")
+        print(f"  Classes ({len(self.CLASS_NAMES)}): {list(self.CLASS_NAMES.values())}")
     
     def detect(self, image_path: str, save_annotated: bool = False) -> List[Dict]:
         """
