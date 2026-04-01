@@ -79,5 +79,9 @@ src/vision/models/*.pth
 # Model
 Roof-Damage-1/*
 !Roof-Damage-1/data.yaml
+Roof-Damage-Merged/*
+!Roof-Damage-Merged/data.yaml
+Roof-Damage-Keyan/*
+!Roof-Damage-Keyan/data.yaml
 runs/*
 *.pt

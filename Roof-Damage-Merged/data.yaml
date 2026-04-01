@@ -1,0 +1,14 @@
+path: /Users/alex/dev/uav_dev/Roof-Damage-Merged
+train: train/images
+val: valid/images
+test: test/images
+nc: 8
+names:
+- Blister
+- Chipped Shingle
+- Cracked Shingle
+- Degranulation
+- Dragons Tooth
+- Hail Impact
+- Mechanical Damage
+- Puncture
