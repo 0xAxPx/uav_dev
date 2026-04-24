@@ -77,7 +77,7 @@ src/vision/models/*.pth
 !src/vision/models/.gitkeep
 
 # Model
-Roof-Damage-1/*
-!Roof-Damage-1/data.yaml
+Roof-Damage-Merged/*
+!Roof-Damage-Merged/data.yaml
 runs/*
-*.pt
+!*.pt
