@@ -1,0 +1,7 @@
+train: data/training/batch1/images/train
+val: data/training/batch1/images/train
+
+nc: 8
+names: ['Missing Shingle', 'Damaged Shingle', 'Moss Growth', 
+        'Chipped Shingle', 'Hail Impact', 'Debris', 
+        'Cracked Flashing', 'Granule Loss']

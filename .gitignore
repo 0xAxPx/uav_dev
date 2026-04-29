@@ -52,6 +52,9 @@ temp/
 
 # Datasets
 datasets/*
+!datasets/labeled/*
+!datasets/*.jpg
+!datasets/*.HEIC
 !datasets/.gitkeep
 !datasets/README.md
 
@@ -70,6 +73,7 @@ data/outputs/detections/*
 data/datasets/raw/*
 data/datasets/annotated/*
 data/datasets/splits/*
+
 
 # Vision models (except .gitkeep)
 src/vision/models/*.pt

@@ -1,0 +1,7 @@
+train: /Users/alex/dev/uav_dev/Roof-Damage-v2-151imgs/images/train
+val: /Users/alex/dev/uav_dev/Roof-Damage-v2-151imgs/images/train
+
+nc: 8
+names: ['Missing Shingle', 'Damaged Shingle', 'Moss Growth', 
+        'Chipped Shingle', 'Hail Impact', 'Debris', 
+        'Cracked Flashing', 'Granule Loss']
