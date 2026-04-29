@@ -32,63 +32,46 @@ parameters_backup.bson
 .AppleDouble
 .LSOverride
 
-# Logs and telemetry
+# Logs
 log/
 logs/
 *.log
-scripts/missions/logs/*.csv
-
-# Analysis outputs (keep examples)
-scripts/analysis/plots/*.png
-!scripts/analysis/plots/*example*.png
-scripts/missions/images/*.png
-scripts/missions/images/*.jpg
-data/flights/images/*.csv
 
 # Temporary files
 tmp/
 temp/
 *.tmp
 
-# Datasets
-datasets/*
-!datasets/labeled/*
-!datasets/*.jpg
-!datasets/*.HEIC
-!datasets/.gitkeep
-!datasets/README.md
-
-# Reports
-reports/*.pdf
-
 # Jupyter
 .ipynb_checkpoints/
-# Data directories (keep structure, ignore contents)
-data/flights/logs/*.csv
-data/flights/images/*.png
-data/flights/images/*.jpg
-data/outputs/plots/*.png
-data/outputs/reports/*.pdf
-data/outputs/detections/*
-data/datasets/raw/*
-data/datasets/annotated/*
-data/datasets/splits/*
 
+# Training runs - ignore intermediate files
+runs/**/weights/last.pt
+runs/**/*.jpg
+runs/**/*.png
+runs/**/*.csv
+runs/**/events.*
 
-# Vision models (except .gitkeep)
-src/vision/models/*.pt
-src/vision/models/*.pth
-!src/vision/models/.gitkeep
+# Training datasets - ignore large image folders
+Roof-Damage-Merged/train/images/
+Roof-Damage-Merged/valid/images/
+Roof-Damage-Merged/test/images/
+Roof-Damage-Merged/train/labels/
+Roof-Damage-Merged/valid/labels/
+Roof-Damage-Merged/test/labels/
+Roof-Damage-v2-151imgs/images/
+Roof-Damage-v2-151imgs/labels/
 
-# Model
-Roof-Damage-Merged/*
-!Roof-Damage-Merged/data.yaml
-runs/*
-!*.pt
-# Large training artifacts (keep local)
-runs/detect/roof_v2_124imgs2/*.jpg
-runs/detect/roof_v2_124imgs2/*.png
-runs/detect/roof_v2_124imgs2/weights/last.pt
+# Cache files
+*.cache
 
-# Keep only best.pt
-!runs/detect/roof_v2_124imgs2/weights/best.pt
+# Downloaded base models
+yolov8n.pt
+yolov8s.pt
+yolov8m.pt
+yolov8l.pt
+yolov8x.pt
+
+data/flights/images/
+data/outputs/
+data/datasets/
