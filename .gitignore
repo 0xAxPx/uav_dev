@@ -52,6 +52,9 @@ temp/
 
 # Datasets
 datasets/*
+!datasets/labeled/*
+!datasets/*.jpg
+!datasets/*.HEIC
 !datasets/.gitkeep
 !datasets/README.md
 
@@ -71,6 +74,7 @@ data/datasets/raw/*
 data/datasets/annotated/*
 data/datasets/splits/*
 
+
 # Vision models (except .gitkeep)
 src/vision/models/*.pt
 src/vision/models/*.pth
@@ -81,3 +85,10 @@ Roof-Damage-Merged/*
 !Roof-Damage-Merged/data.yaml
 runs/*
 !*.pt
+# Large training artifacts (keep local)
+runs/detect/roof_v2_124imgs2/*.jpg
+runs/detect/roof_v2_124imgs2/*.png
+runs/detect/roof_v2_124imgs2/weights/last.pt
+
+# Keep only best.pt
+!runs/detect/roof_v2_124imgs2/weights/best.pt
